@@ -4,7 +4,7 @@ import * as auth from '@/utils/auth'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 // Route guard
@@ -23,7 +23,7 @@ router.beforeEach((to, from, next) => {
       // If accessing non-login page and session information doesn't exist, meaning not logged in, redirect to login page
       next({ path: '/login' })
     }
-    
+    next()
   }
 })
 

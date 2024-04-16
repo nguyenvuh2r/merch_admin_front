@@ -15,6 +15,16 @@ export const isLogin = () => {
 }
 
 /**
+ * Get user information
+ * @return object
+ */
+export const getUser = () => {
+  let user = localStorage.getItem('user')
+  if (!user || user.length === 0) return null
+  return JSON.parse(user)
+}
+
+/**
  * Check if the login has expired
  * @return boolean
  */

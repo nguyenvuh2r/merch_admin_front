@@ -5,7 +5,7 @@
   */
 
 // Backend management system server address
-export const baseUrl = 'http://localhost:5038'
+export const baseUrl = import.meta.env.VITE_BASE_URL
 
 export default {
   baseUrl

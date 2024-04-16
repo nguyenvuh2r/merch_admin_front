@@ -19,11 +19,9 @@
     </div>
     <div class="container-fluid">
       <div class="row clearfix">
-        <div class="col-lg-12">
+        <div class="col-lg-12 col-md-12 col-sm-12">
           <div class="card">
-            <div class="body">
-              <router-view></router-view>
-            </div>
+            <router-view></router-view>
           </div>
         </div>
       </div>

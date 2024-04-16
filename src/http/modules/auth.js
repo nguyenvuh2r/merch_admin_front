@@ -3,7 +3,7 @@ import axios from '../axios'
 // Log in
 export const login = data => {
   return axios({
-    url: 'Auth',
+    url: 'Auth/Login',
     method: 'post',
     data
   })
