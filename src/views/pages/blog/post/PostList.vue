@@ -54,7 +54,7 @@
         <div class="media mleft" style="margin-top: 20px">
           <div class="media-left">
             <a href="javascript:void(0);">
-              <img class="media-object" :src="buildPostMediaUrl(item.image, item.id, 'small')" width="64" height="64" alt="" />
+              <img class="media-object" :src="buildPostMediaUrl(item.image, item.id, 'SMALL')" width="64" height="64" alt="" />
             </a>
           </div>
           <div class="media-body">

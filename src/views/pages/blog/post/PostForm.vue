@@ -433,11 +433,11 @@ onMounted(async () => {
   $('select[class^="select-picker"]').selectpicker('refresh')
 
   if (post.value.image) {
-    selectedImage.value.url = buildPostMediaUrl(post.value.image, postId.value, 'small')
+    selectedImage.value.url = buildPostMediaUrl(post.value.image, postId.value, 'SMALL')
     selectedImage.value.name = post.value.image
   }
   if (post.value.metaImage) {
-    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, postId.value, 'small')
+    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, postId.value, 'SMALL')
     selectedMetaImage.value.name = post.value.metaImage
   }
 })

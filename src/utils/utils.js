@@ -13,7 +13,7 @@ const utils = () => {
     return BASE_URL + path.replace(/\\/g, '/')
   }
 
-  const buildPostMediaUrl = (fileName, postId, size = 'large') => {
+  const buildPostMediaUrl = (fileName, postId, size = 'LARGE') => {
     return BASE_URL + 'media/blog/' + postId + '/' + size + '/' + fileName
   }
 
