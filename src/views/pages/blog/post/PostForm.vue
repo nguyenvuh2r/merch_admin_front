@@ -101,12 +101,7 @@
       <div class="form-group">
         <label class="font-weight-bold mt-0">Tags</label>
         <div class="form-line" :class="{ error: formErrors?.Tags }">
-          <input
-            id="tags"
-            type="text"
-            class="form-control"
-            data-role="tagsinput"
-          />
+          <vue3-tags-input @on-tags-changed="handleChangeTag" :tags="formData.Tags" class="form-control" />
         </div>
         <label class="error text-left" v-show="formErrors?.Tags">{{ formErrors?.Tags }}</label>
       </div>
@@ -202,6 +197,7 @@ import { ref, inject, onMounted, reactive } from 'vue'
 
 import DocumentEditor from '@ckeditor/ckeditor5-build-decoupled-document'
 import CkUploadAdapterPlugin from '../../../../plugins/CkUploadAdapter'
+import Vue3TagsInput from 'vue3-tags-input'
 
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
 
@@ -339,7 +335,7 @@ const initialFormData = () => {
     Image: '',
     Summary: '',
     Content: '',
-    Tags: '',
+    Tags: [],
     Meta: '',
     MetaDescription: '',
     MetaImage: '',
@@ -360,7 +356,7 @@ const formSchema = yup.object({
   IsPublish: yup.boolean().required(),
   Summary: yup.string().required().min(2),
   Content: yup.string(),
-  Tags: yup.string(),
+  Tags: yup.array(),
   Meta: yup.string(),
   MetaDescription: yup.string(),
   MetaImage: yup.string(),
@@ -391,7 +387,6 @@ const onFormSubmit = async (isPublish = true) => {
 
   try {
     data.IsPublish = isPublish
-    data.Tags = $("#tags").val()
 
     const res = await api.blogPost.update(postId.value, data)
     if (res.data) {
@@ -407,6 +402,10 @@ const onFormSubmit = async (isPublish = true) => {
     loading.value = false
   }
 }
+const handleChangeTag = (tags) => {
+  console.log(tags)
+  formData.value.Tags = tags
+}
 // End Form region
 
 onMounted(async () => {
@@ -421,7 +420,7 @@ onMounted(async () => {
     Image: post.value.image,
     Summary: post.value.summary,
     Content: post.value.content,
-    Tags: post.value.tags,
+    Tags: post.value.postTags.map(item => item.tag.name),
     Meta: post.value.meta,
     MetaDescription: post.value.metaDescription,
     MetaImage: post.value.metaImage,
@@ -430,7 +429,6 @@ onMounted(async () => {
     CategoryId: post.value.categoryId
   }
 
-  $("#tags").tagsinput('add', post.value.tags)
   $('.select-picker-category').selectpicker('val', post.value.categoryId)
   $('select[class^="select-picker"]').selectpicker('refresh')
 
@@ -488,5 +486,20 @@ const loadCategories = async () => {
 <style scoped>
 .remove-selected-image {
   cursor: pointer;
+}
+
+.v3ti .v3ti-tag {
+  background: #F56C6C;
+  /*border: 1px solid #222222;*/
+  /*border-radius: 0;*/
+}
+
+.v3ti .v3ti-tag .v3ti-remove-tag {
+  color: #000000;
+  transition: color .3s;
+}
+
+.v3ti .v3ti-tag .v3ti-remove-tag:hover {
+  color: #ffffff;
 }
 </style>
