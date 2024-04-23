@@ -29,7 +29,8 @@ app.use(router)
 app.use(Toast, {
   pauseOnFocusLoss: false,
   hideProgressBar: true,
-  timeout: 10000,
+  timeout: 3000,
+  maxToasts: 3
 })
 app.directive('permissions', permissions)
 app.mount('#app')

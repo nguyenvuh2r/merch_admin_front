@@ -1,26 +1,12 @@
 <template>
   <AuthorizationFallback :permissions="['blog-post-all', 'admin']">
     <div class="header">
-      <h2>All blog categories</h2>
-      <ul class="header-dropdown m-r--5">
-        <li class="dropdown">
-          <a
-            href="javascript:void(0);"
-            class="dropdown-toggle"
-            data-toggle="dropdown"
-            role="button"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="zmdi zmdi-more-vert"></i>
-          </a>
-          <ul class="dropdown-menu pull-right">
-            <li v-permissions="['blog-post-create', 'admin']">
-              <a @click="newPost()">Add new post</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      <h2>All blog posts</h2>
+      <div class="header-dropdown m-r--5">
+        <button @click="newPost()" type="button" class="btn btn-sm cbtn-raised btn-default waves-effect">
+          <i class="material-icons">add</i>
+        </button>
+      </div>
     </div>
     <EasyDataTable
       :theme-color="theme"
@@ -58,7 +44,7 @@
           <div
             class="icon-circle"
             v-permissions="['blog-post-delete', 'admin']"
-            @click="showDelete(item.id, item.title)"
+            @click="showDelete(item.id)"
           >
             <i class="zmdi zmdi-delete"></i>
           </div>
@@ -68,7 +54,7 @@
         <div class="media mleft" style="margin-top: 20px">
           <div class="media-left">
             <a href="javascript:void(0);">
-              <img class="media-object" :src="item.image" width="64" height="64" alt="" />
+              <img class="media-object" :src="buildPostMediaUrl(item.image, item.id, 'small')" width="64" height="64" alt="" />
             </a>
           </div>
           <div class="media-body">
@@ -90,21 +76,23 @@ import modalToast from '@/utils/modalToast'
 import router from '@/router'
 import utils from '@/utils/utils'
 
-const { showToast } = modalToast()
-const { formatDateTime } = utils()
+const { showToast, showConfirmModal } = modalToast()
+const { formatDateTime, buildPostMediaUrl } = utils()
 
 const api = inject('api')
+
+const errrorMessage = ref('')
 
 // List region
 const itemsSelected = ref([])
 const theme = ref('#f48225')
 const loading = ref(false)
-const queryParams = ref({ pageSize: 10, page: 1 })
+const queryParams = ref({ pageSize: 25, page: 1 })
 
 const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
-  rowsPerPage: 10
+  rowsPerPage: 25
 })
 
 const headers = ref([
@@ -155,6 +143,23 @@ const newPost = async () => {
   } catch (err) {
     showToast(err.message, 'error')
   }
+}
+
+const showDelete = (id) => {
+  showConfirmModal(null, async (confirmed) => {
+    if (!confirmed) return
+
+    try {
+      await api.blogPost.del(id)
+      showToast(`Post with id "${id}" deleted successfully...`)
+      await loadData(queryParams.value)
+    } catch (err) {
+      errrorMessage.value = err.message
+      showToast(err.message, 'error')
+    } finally {
+      loading.value = false
+    }
+  })
 }
 
 const redirectToUpdate = async (postId) => {

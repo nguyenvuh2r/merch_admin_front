@@ -1,3 +1,4 @@
+import { largeImage } from '@/utils/global'
 import axios from '../../axios'
 
 // Add new
@@ -47,9 +48,10 @@ export const all = (queryParams) => axios({
  * @param file Image file
  * @returns {*}
  */
-export const uploadImage = (itemId, file) => {
+export const uploadImage = (itemId, file, size = largeImage) => {
   let formData = new FormData()
   formData.append('file', file)
+  formData.append('size', size)
 
   return axios({
     url: `Blog/Posts/${itemId}/UploadImage`,

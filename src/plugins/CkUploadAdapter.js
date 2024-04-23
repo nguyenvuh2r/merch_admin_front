@@ -1,3 +1,4 @@
+import { largeImage } from '@/utils/global'
 import api from '../http'
 import utils from '@/utils/utils'
 
@@ -13,10 +14,10 @@ export default class CkUploadAdapter {
     return this.loader.file
       .then(file => {
         return new Promise((resolve, reject) => {
-          api.blogPost.uploadImage(this.postId, file)
+          api.blogPost.uploadImage(this.postId, file, largeImage)
             .then(response => {
               resolve({
-                default: buildMediaUrl(response.data.imgUrl)
+                default: buildMediaUrl(response.data.url)
               })
             })
             .catch(error => {

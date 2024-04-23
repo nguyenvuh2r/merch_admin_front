@@ -9,7 +9,7 @@
       <div class="form-group">
         <label class="font-weight-bold mt-0">Article title</label>
         <div class="form-line" :class="{ error: formErrors?.Title }">
-          <input type="text" v-model="formData.Title" class="form-control" />
+          <input type="text" v-model="formData.Title" @input="updateSlug" class="form-control" />
         </div>
         <label class="error text-left" v-show="formErrors?.Title">{{ formErrors?.Title }}</label>
       </div>
@@ -215,9 +215,10 @@ import * as yup from 'yup'
 import { useDropzone } from 'vue3-dropzone'
 
 import utils from '@/utils/utils'
+import { smallImage } from '@/utils/global'
 
-const { showConfirmModal, showToast } = modalToast()
-const { buildMediaUrl } = utils()
+const { showToast } = modalToast()
+const { buildMediaUrl, buildPostMediaUrl } = utils()
 
 const api = inject('api')
 
@@ -269,9 +270,9 @@ const onCoverImageDrop = async (acceptedFiles, rejectReasons) => {
 
     const resImage = await saveImageFile(acceptedFiles[0])
     if (resImage) {
-      selectedImage.value.name = resImage.imgName
-      selectedImage.value.url = buildMediaUrl(resImage.imgUrl)
-      formData.value.Image = selectedImage.value.url
+      selectedImage.value.name = resImage.name
+      selectedImage.value.url = buildMediaUrl(resImage.url)
+      formData.value.Image = selectedImage.value.name
     }
   }
   if (rejectReasons.length > 0) {
@@ -287,7 +288,7 @@ const { getRootProps: getCoverImageRootProps, getInputProps: getCoverImageInputP
   useDropzone(options)
 // End Cover image drop zone region
 
-// Cover image drop zone region
+// Meta image drop zone region
 const selectedMetaImage = ref({
   name: '',
   type: '',
@@ -309,9 +310,9 @@ const onMetaImageDrop = async (acceptedFiles, rejectReasons) => {
 
     const resImage = await saveImageFile(acceptedFiles[0])
     if (resImage) {
-      selectedMetaImage.value.name = resImage.imgName
-      selectedMetaImage.value.url = buildMediaUrl(resImage.imgUrl)
-      formData.value.MetaImage = selectedMetaImage.value.url
+      selectedMetaImage.value.name = resImage.name
+      selectedMetaImage.value.url = buildMediaUrl(resImage.url)
+      formData.value.MetaImage = selectedMetaImage.value.name
     }
   }
   if (rejectReasons.length > 0) {
@@ -325,7 +326,7 @@ const metaImageOtions = reactive({
 })
 const { getRootProps: getMetaImageRootProps, getInputProps: getMetaImageInputProps } =
   useDropzone(metaImageOtions)
-// End Cover image drop zone region
+// End Meta image drop zone region
 
 // Form region
 const { runYupValidation } = validation()
@@ -434,18 +435,26 @@ onMounted(async () => {
   $('select[class^="select-picker"]').selectpicker('refresh')
 
   if (post.value.image) {
-    selectedImage.value.url = post.value.image
-    selectedImage.value.name = post.value.image.substring(post.value.image.lastIndexOf("/") + 1)
+    selectedImage.value.url = buildPostMediaUrl(post.value.image, postId.value, 'small')
+    selectedImage.value.name = post.value.image
   }
   if (post.value.metaImage) {
-    selectedMetaImage.value.url = post.value.metaImage
-    selectedMetaImage.value.name = post.value.metaImage.substring(post.value.metaImage.lastIndexOf("/") + 1)
+    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, postId.value, 'small')
+    selectedMetaImage.value.name = post.value.metaImage
   }
 })
 
-const saveImageFile = async (file) => {
+const updateSlug = () => {
+  formData.value.Slug = generateSlug(formData.value.Title)
+}
+
+const generateSlug = (title) => {
+  return title.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-')
+}
+
+const saveImageFile = async (file, size = smallImage) => {
   try {
-    const res = await api.blogPost.uploadImage(postId.value, file)
+    const res = await api.blogPost.uploadImage(postId.value, file, size)
     return res.data
   } catch (err) {
     showToast(err.message, 'error')

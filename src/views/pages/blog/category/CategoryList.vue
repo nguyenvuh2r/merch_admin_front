@@ -2,25 +2,11 @@
   <AuthorizationFallback :permissions="['blog-cat-all', 'admin']">
     <div class="header">
       <h2>All blog categories</h2>
-      <ul class="header-dropdown m-r--5">
-        <li class="dropdown">
-          <a
-            href="javascript:void(0);"
-            class="dropdown-toggle"
-            data-toggle="dropdown"
-            role="button"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <i class="zmdi zmdi-more-vert"></i>
-          </a>
-          <ul class="dropdown-menu pull-right">
-            <li v-permissions="['blog-cat-create', 'admin']">
-              <a @click="showModal('create', 0)">Add category</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      <div class="header-dropdown m-r--5">
+        <button @click="newPost()" type="button" class="btn btn-sm cbtn-raised btn-default waves-effect">
+          <i class="material-icons">add</i>
+        </button>
+      </div>
     </div>
     <EasyDataTable
       :theme-color="theme"
@@ -46,7 +32,7 @@
           <div class="icon-circle" v-permissions="['blog-cat-update', 'admin']" @click="showModal('update', item)">
             <i class="zmdi zmdi-edit"></i></div
           >
-          <div class="icon-circle" v-permissions="['blog-cat-delete', 'admin']" @click="showDeleteCat(item.id)">
+          <div class="icon-circle" v-permissions="['blog-cat-delete', 'admin']" @click="showDelete(item.id)">
             <i class="zmdi zmdi-delete"></i></div
           >
         </div>
@@ -70,10 +56,21 @@
                 <div class="form-group">
                   <label class="mt-0">Name</label>
                   <div class="form-line" :class="{ error: formErrors?.Name }">
-                    <input type="text" v-model="formData.Name" class="form-control" />
+                    <input type="text" v-model="formData.Name" @input="updateSlug" class="form-control" />
                   </div>
                   <label class="error text-left" v-show="formErrors?.Name">{{
                     formErrors?.Name
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0">Slug</label>
+                  <div class="form-line" :class="{ error: formErrors?.Slug }">
+                    <input type="text" v-model="formData.Slug" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formErrors?.Slug">{{
+                    formErrors?.Slug
                   }}</label>
                 </div>
               </div>
@@ -128,17 +125,18 @@ const categories = ref([])
 const itemsSelected = ref([])
 const theme = ref('#f48225')
 const loading = ref(false)
-const queryParams = ref({ pageSize: 10, page: 1 })
+const queryParams = ref({ pageSize: 25, page: 1 })
 
 const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
-  rowsPerPage: 10
+  rowsPerPage: 25
 })
 
 const headers = ref([
   { text: 'ID', value: 'id' },
   { text: 'Name', value: 'name' },
+  { text: 'Slug', value: 'slug' },
   { text: 'Parent', value: 'parentId' },
   { text: 'Operation', value: 'operation' }
 ])
@@ -175,6 +173,7 @@ const mode = ref('create')
 const initialFormData = () => {
   return {
     Name: '',
+    Slug: '',
     ParentId: 0
   }
 }
@@ -182,6 +181,7 @@ const formData = ref(initialFormData())
 const formErrors = ref({})
 const formSchema = yup.object({
   Name: yup.string().required().min(2),
+  Slug: yup.string().required().min(2),
   ParentId: yup.number().required().integer().min(0)
 })
 const handleFormErrors = (errorData) => {
@@ -204,6 +204,7 @@ const showModal = async (mod, item = null) => {
     selectedItem.value = item
     formData.value = {
       Name: item.name,
+      Slug: item.slug,
       ParentId: item.parentId
     }
     $('.select-picker-parent').selectpicker('val', item.parentId)
@@ -255,15 +256,22 @@ const resetForm = () => {
   formData.value = initialFormData()
   formErrors.value = {}
 }
+const updateSlug = () => {
+  formData.value.Slug = generateSlug(formData.value.Name)
+}
 // End form region
 
-const showDeleteCat = (catId) => {
+const generateSlug = (name) => {
+  return name.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-')
+}
+const showDelete = (id) => {
   showConfirmModal(null, async (confirmed) => {
     if (!confirmed) return
 
     try {
-      await api.blogCategory.del(catId)
-      showToast(`Category with id "${catId}" deleted successfully...`)
+      await api.blogCategory.del(id)
+      showToast(`Category with id "${id}" deleted successfully...`)
+      await loadData(queryParams.value)
     } catch (err) {
       errrorMessage.value = err.message
       showToast(err.message, 'error')
