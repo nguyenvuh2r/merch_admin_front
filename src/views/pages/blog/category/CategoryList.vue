@@ -3,7 +3,7 @@
     <div class="header">
       <h2>All blog categories</h2>
       <div class="header-dropdown m-r--5">
-        <button @click="newPost()" type="button" class="btn btn-sm cbtn-raised btn-default waves-effect">
+        <button @click="showModal('create')" type="button" class="btn btn-sm cbtn-raised btn-default waves-effect">
           <i class="material-icons">add</i>
         </button>
       </div>
