@@ -32,6 +32,9 @@
           ></label>
         </div>
       </template>
+      <template #item-title="item">
+        <a :href="buildPostUrl(item)" :title="item.title" target="_blank">{{ item.title }}</a>
+      </template>
       <template #item-operation="item">
         <div class="operation-wrapper">
           <div
@@ -54,7 +57,7 @@
         <div class="media mleft" style="margin-top: 20px">
           <div class="media-left">
             <a href="javascript:void(0);">
-              <img class="media-object" :src="buildPostMediaUrl(item.image, item.id, 'SMALL')" width="64" height="64" alt="" />
+              <img class="media-object" :src="buildPostMediaUrl(item.image, '300x300')" width="64" height="64" alt="" />
             </a>
           </div>
           <div class="media-body">
@@ -77,7 +80,7 @@ import router from '@/router'
 import utils from '@/utils/utils'
 
 const { showToast, showConfirmModal } = modalToast()
-const { formatDateTime, buildPostMediaUrl } = utils()
+const { formatDateTime, buildPostMediaUrl, buildPostUrl } = utils()
 
 const api = inject('api')
 

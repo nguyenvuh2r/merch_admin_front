@@ -27,6 +27,9 @@
       <template #item-parentId="item">
         {{ categories.find((x) => x.id == item.parentId)?.name }}
       </template>
+      <template #item-title="item">
+        <a :href="buildCategoryUrl(item)" :title="item.name" target="_blank">{{ item.name }}</a>
+      </template>
       <template #item-operation="item">
         <div class="operation-wrapper">
           <div class="icon-circle" v-permissions="['blog-cat-update', 'admin']" @click="showModal('update', item)">
@@ -114,9 +117,11 @@ import { ref, inject, watch, onMounted } from 'vue'
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
 import modalToast from '@/utils/modalToast'
 import validation from '@/utils/validation'
+import utils from '@/utils/utils'
 import * as yup from 'yup'
 
 const { showConfirmModal, showToast } = modalToast()
+const { buildCategoryUrl } = utils()
 
 const api = inject('api')
 const categories = ref([])

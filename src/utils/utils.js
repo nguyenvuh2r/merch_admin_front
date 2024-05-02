@@ -6,15 +6,24 @@ function reverseString(str) {
 
 const utils = () => {
   const BASE_URL = import.meta.env.VITE_BASE_URL + '/'
+  const CDN = import.meta.env.VITE_CDN + '/'
 	const key = CryptoJS.enc.Utf8.parse(import.meta.env.VITE_KEY)
 	const iv = CryptoJS.enc.Utf8.parse(reverseString(import.meta.env.VITE_KEY))
 
   const buildMediaUrl = (path) => {
-    return BASE_URL + path.replace(/\\/g, '/')
+    return CDN + path.replace(/\\/g, '/')
   }
 
-  const buildPostMediaUrl = (fileName, postId, size = 'LARGE') => {
-    return BASE_URL + 'media/blog/' + postId + '/' + size + '/' + fileName
+  const buildPostMediaUrl = (fileName, size = '1024x1024') => {
+    return CDN + 'images/blog/' + size + '/' + fileName
+  }
+
+  const buildPostUrl = (post) => {
+    return BASE_URL + post.slug
+  }
+
+  const buildCategoryUrl = (category) => {
+    return BASE_URL + 'blog/' + category.slug + '/' + category.id
   }
 
   const createSlug = (title) => {
@@ -98,6 +107,8 @@ const utils = () => {
     formatBytes,
     buildMediaUrl,
     buildPostMediaUrl,
+    buildPostUrl,
+    buildCategoryUrl,
     createSlug,
     formatDateTime,
 		encrypt,

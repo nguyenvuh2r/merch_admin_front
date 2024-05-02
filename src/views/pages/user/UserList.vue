@@ -156,7 +156,7 @@
                 <div class="form-group">
                   <label class="mt-0">Username</label>
                   <div class="form-line" :class="{ error: formUserErrors?.Username }">
-                    <input type="text" v-model="formUserData.Username" class="form-control" />
+                    <input type="text" v-model="formUserData.Username" class="form-control" :disabled="mode == 'update'" />
                   </div>
                   <label class="error text-left" v-show="formUserErrors?.Username">{{
                     formUserErrors?.Username
@@ -234,6 +234,7 @@
                       v-model="formUserData.RoleIds"
                       class="select-picker-role form-control show-tick"
                       multiple
+                      :disabled="mode == 'update' && selectedUser?.Username == 1"
                     >
                       <option v-for="role in roles" :value="role.id" :key="role.id">
                         {{ role.name }}
@@ -242,6 +243,65 @@
                   </div>
                   <label class="error text-left" v-show="formUserErrors?.RoleIds">{{
                     formUserErrors?.RoleIds
+                  }}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Description</b></label>
+                  <div class="form-line" :class="{ error: formUserErrors?.Description }">
+                    <textarea
+                      v-model="formUserData.Description"
+                      rows="1"
+                      class="form-control no-resize auto-growth"
+                    ></textarea>
+                  </div>
+                  <label class="error text-left" v-show="formUserErrors?.Description">{{
+                    formUserErrors?.Description
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="font-weight-bold mt-0">Avatar</label>
+                  <div v-bind="getCoverImageRootProps()" class="dropzone dz-clickable">
+                    <input v-bind="getCoverImageInputProps()" />
+                    <div class="dz-message">
+                      <div class="drag-icon-cph"><i class="material-icons">touch_app</i></div>
+                      <p>Drop files here or click to upload.</p>
+                    </div>
+                  </div>
+                  <div v-if="selectedImage.name" class="inbox">
+                    <ul class="mail_list list-group list-unstyled">
+                      <li class="list-group-item">
+                        <div class="media">
+                          <div class="pull-left">
+                            <div class="thumb hidden-sm-down m-r-20">
+                              <img :src="selectedImage.url" alt="Article cover image" />
+                            </div>
+                          </div>
+                          <div class="media-body">
+                            <p class="msg">{{ selectedImage.name }}</p>
+                            <small class="float-right text-muted">
+                              <span class="remove-selected-image" @click="removeSelectedCoverImage"
+                                ><i class="zmdi zmdi-delete"></i
+                              ></span>
+                            </small>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <label
+                    class="error text-left"
+                    v-if="selectImageReject !== ''"
+                    id="isCoverImageDragReject"
+                    >{{ selectImageReject }}</label
+                  >
+                  <label class="error text-left" v-show="formUserErrors?.AvatarFile">{{
+                    formUserErrors?.AvatarFile
                   }}</label>
                 </div>
               </div>
@@ -335,9 +395,12 @@
 
 <script setup>
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
-import { ref, inject, onBeforeMount, computed } from 'vue'
+import { ref, inject, onBeforeMount, onMounted, computed, reactive } from 'vue'
 import modalToast from '@/utils/modalToast'
 import validation from '@/utils/validation'
+
+import { useDropzone } from 'vue3-dropzone'
+
 import * as yup from 'yup'
 
 const api = inject('api')
@@ -432,6 +495,8 @@ const initialUserFormData = () => {
     FirstName: '',
     LastName: '',
     PhoneNumber: '',
+    Description: '',
+    AvatarFile: null,
     Gender: true
   }
 }
@@ -440,10 +505,22 @@ const formUserData = ref(initialUserFormData())
 const formUserErrors = ref({})
 
 const userSchema = yup.object({
-  Username: yup.string().required().min(6),
+  Username: yup.string().required().min(4),
   Email: yup.string().required().email(),
   FirstName: yup.string().required().min(2),
   LastName: yup.string().required().min(2),
+  Description: yup.string().min(2),
+  AvatarFile: yup
+    .mixed()
+    .nullable(true)
+    .test('fileFormat', 'File format not supported', (value) => {
+      if (!value) return true
+      return value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
+    })
+    .test('fileSize', 'File size must be less than 5MB', (value) => {
+      if (!value) return true
+      return value && value.size <= 5 * 1024 * 1024 // 5MB
+    }),
   PhoneNumber: yup
     .string()
     .required()
@@ -451,6 +528,52 @@ const userSchema = yup.object({
   RoleIds: yup.array().min(1, 'Please select as least one role!'),
   Gender: yup.bool().oneOf([true, false]).required()
 })
+
+// Cover image drop zone region
+const selectedImage = ref({
+  name: '',
+  type: '',
+  url: '',
+  size: 0,
+  file: ''
+})
+const selectImageReject = ref('')
+const removeSelectedCoverImage = () => {
+  selectedImage.value = {}
+  selectImageReject.value = ''
+
+  formUserData.value.AvatarFile = null
+}
+const onCoverImageDrop = async (acceptedFiles, rejectReasons) => {
+  selectImageReject.value = ''
+  if (acceptedFiles.length > 0) {
+    selectedImage.value.size = acceptedFiles[0].size
+    selectedImage.value.type = acceptedFiles[0].type
+    selectedImage.value.name = acceptedFiles[0].name
+    selectedImage.value.file = acceptedFiles[0]
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      selectedImage.value.url = reader.result
+    }
+    reader.readAsDataURL(acceptedFiles[0])
+
+    formUserData.value.AvatarFile = selectedImage.value.file
+  }
+
+  if (rejectReasons.length > 0) {
+    selectImageReject.value = rejectReasons[0].errors[0].message
+  }
+}
+const options = reactive({
+  multiple: false,
+  onDrop: onCoverImageDrop,
+  accept: ['.jpg', '.jpeg', '.png']
+})
+const { getRootProps: getCoverImageRootProps, getInputProps: getCoverImageInputProps } =
+  useDropzone(options)
+// End Cover image drop zone region
+
 const handleUserErrors = (errorData) => {
   let errors = {}
   errorData.forEach((error) => {
@@ -464,6 +587,7 @@ const showUserModal = async (mod, userId) => {
   mode.value = mod
   errrorMessage.value = ''
   resetUserForm()
+
   if (mod == 'create') {
     $('.select-picker-role').selectpicker('val', [])
     $('.select-picker-gender').selectpicker('val', 'true')
@@ -477,7 +601,9 @@ const showUserModal = async (mod, userId) => {
       FirstName: selectedUser.value.firstName,
       LastName: selectedUser.value.lastName,
       PhoneNumber: selectedUser.value.phoneNumber,
-      Gender: selectedUser.value.gender
+      Gender: selectedUser.value.gender,
+      Description: selectedUser.value.description,
+      AvatarFile: null
     }
     $('.select-picker-role').selectpicker('val', selectedUser.value.roleIds)
     $('.select-picker-gender').selectpicker(
@@ -527,6 +653,13 @@ const onUserSubmit = async () => {
 const resetUserForm = () => {
   formUserData.value = initialUserFormData()
   formUserErrors.value = {}
+  selectedImage.value = {
+    name: '',
+    type: '',
+    url: '',
+    size: 0,
+    file: ''
+  }
 }
 // End user detail region
 
@@ -568,6 +701,10 @@ const displayedPages = computed(() => {
 onBeforeMount(() => {
   loadUsers(queryParams.value)
   loadRoles()
+})
+
+onMounted(() => {
+  //autosize($('textarea.auto-growth'))
 })
 
 const goToPage = (pageNumber) => {
@@ -658,5 +795,9 @@ const selectUser = async (userId) => {
 <style scoped>
 table li {
   list-style: none;
+}
+
+.dropzone .dz-message .drag-icon-cph .material-icons {
+  font-size: unset !important;
 }
 </style>

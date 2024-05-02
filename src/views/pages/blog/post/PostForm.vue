@@ -433,11 +433,11 @@ onMounted(async () => {
   $('select[class^="select-picker"]').selectpicker('refresh')
 
   if (post.value.image) {
-    selectedImage.value.url = buildPostMediaUrl(post.value.image, postId.value, 'SMALL')
+    selectedImage.value.url = buildPostMediaUrl(post.value.image, '300x300')
     selectedImage.value.name = post.value.image
   }
   if (post.value.metaImage) {
-    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, postId.value, 'SMALL')
+    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, '300x300')
     selectedMetaImage.value.name = post.value.metaImage
   }
 })
@@ -484,6 +484,14 @@ const loadCategories = async () => {
 </script>
 
 <style scoped>
+.ck-editor__editable {
+  min-height: 600px;
+}
+
+.ck.ck-editor__editable {
+  border-color: #ccced1;
+}
+
 .remove-selected-image {
   cursor: pointer;
 }
