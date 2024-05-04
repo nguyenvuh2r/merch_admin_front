@@ -195,6 +195,7 @@ const setStatus = async (isPublish, postId) => {
   } catch (err) {
     showToast(err.message, 'error')
   }
+  await loadData(queryParams.value)
 }
 
 const setIndex = async (isIndex, postId) => {
@@ -210,6 +211,7 @@ const setIndex = async (isIndex, postId) => {
   } catch (err) {
     showToast(err.message, 'error')
   }
+  await loadData(queryParams.value)
 }
 </script>
 
