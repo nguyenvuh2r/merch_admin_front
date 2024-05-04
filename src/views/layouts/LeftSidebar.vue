@@ -100,7 +100,7 @@ const isSubRoute = (routeNames) => {
 
 const logout = () => {
   auth.logout()
-  router.push({ name: 'Login' })
+  router.go('/')
 }
 </script>
 

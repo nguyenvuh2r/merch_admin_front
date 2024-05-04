@@ -32,6 +32,14 @@
           ></label>
         </div>
       </template>
+      <template #item-isIndex="item">
+        <div class="switch">
+          <label>
+            <input type="checkbox" :checked="item.isIndex" @click="setIndex(!item.isIndex, item.id)" />
+            <span class="lever switch-col-amber"></span
+          ></label>
+        </div>
+      </template>
       <template #item-title="item">
         <a :href="buildPostUrl(item)" :title="item.title" target="_blank">{{ item.title }}</a>
       </template>
@@ -104,6 +112,7 @@ const headers = ref([
   { text: 'Category', value: 'category.name' },
   { text: 'Slug', value: 'slug' },
   { text: 'Status', value: 'isPublish' },
+  { text: 'Index', value: 'isIndex' },
   { text: 'Operation', value: 'operation' }
 ])
 
@@ -182,6 +191,21 @@ const setStatus = async (isPublish, postId) => {
     else {
       await api.blogPost.unPublish(postId)
       showToast('Article unpublished successfully...')
+    }
+  } catch (err) {
+    showToast(err.message, 'error')
+  }
+}
+
+const setIndex = async (isIndex, postId) => {
+  try {
+    if (isIndex) {
+      await api.blogPost.setIndex(postId)
+      showToast('Article set index successfully...')
+    }
+    else {
+      await api.blogPost.noIndex(postId)
+      showToast('Article no index successfully...')
     }
   } catch (err) {
     showToast(err.message, 'error')

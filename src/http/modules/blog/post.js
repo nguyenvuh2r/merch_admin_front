@@ -106,3 +106,17 @@ export const unPublish = itemId => {
     method: 'post'
   })
 }
+
+export const setIndex = itemId => {
+  return axios({
+    url: `Blog/Posts/${itemId}/Index`,
+    method: 'post'
+  })
+}
+
+export const noIndex = itemId => {
+  return axios({
+    url: `Blog/Posts/${itemId}/NoIndex`,
+    method: 'post'
+  })
+}
