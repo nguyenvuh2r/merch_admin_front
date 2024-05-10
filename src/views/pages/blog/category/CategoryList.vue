@@ -57,7 +57,7 @@
             <div class="row">
               <div class="col-lg-6 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Name</label>
+                  <label class="mt-0"><b>Name</b></label>
                   <div class="form-line" :class="{ error: formErrors?.Name }">
                     <input type="text" v-model="formData.Name" @input="updateSlug" class="form-control" />
                   </div>
@@ -68,7 +68,7 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Slug</label>
+                  <label class="mt-0"><b>Slug</b></label>
                   <div class="form-line" :class="{ error: formErrors?.Slug }">
                     <input type="text" v-model="formData.Slug" class="form-control" />
                   </div>
@@ -79,7 +79,7 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Parent</label>
+                  <label class="mt-0"><b>Parent</b></label>
                   <div :class="{ error: formErrors?.ParentId }">
                     <select
                       v-model="formData.ParentId"
@@ -92,6 +92,85 @@
                   </div>
                   <label class="error text-left" v-show="formErrors?.ParentId">{{
                     formErrors?.ParentId
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Meta</b></label>
+                  <div class="form-line" :class="{ error: formErrors?.Meta }">
+                    <input type="text" v-model="formData.Meta" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formErrors?.Meta">{{
+                    formErrors?.Meta
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Meta keywords</b></label>
+                  <div class="form-line" :class="{ error: formErrors?.MetaKeywords }">
+                    <input type="text" v-model="formData.MetaKeywords" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formErrors?.MetaKeywords">{{
+                    formErrors?.MetaKeywords
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Meta description</b></label>
+                  <div class="form-line" :class="{ error: formErrors?.MetaDescription }">
+                    <textarea
+                      v-model="formData.MetaDescription"
+                      rows="1"
+                      class="form-control no-resize auto-growth"
+                    ></textarea>
+                  </div>
+                  <label class="error text-left" v-show="formErrors?.MetaDescription">{{
+                    formErrors?.MetaDescription
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group">
+                  <label class="font-weight-bold mt-0"><b>Meta image</b></label>
+                  <div v-bind="getImageRootProps()" class="dropzone dz-clickable">
+                    <input v-bind="getImageInputProps()" />
+                    <div class="dz-message">
+                      <div class="drag-icon-cph"><i class="material-icons">touch_app</i></div>
+                      <p>Drop files here or click to upload.</p>
+                    </div>
+                  </div>
+                  <div v-if="selectedImage.name" class="inbox">
+                    <ul class="mail_list list-group list-unstyled">
+                      <li class="list-group-item">
+                        <div class="media">
+                          <div class="pull-left">
+                            <div class="thumb hidden-sm-down m-r-20">
+                              <img :src="selectedImage.url" alt="Category meta image" />
+                            </div>
+                          </div>
+                          <div class="media-body">
+                            <p class="msg">{{ selectedImage.name }}</p>
+                            <small class="float-right text-muted">
+                              <span class="remove-selected-image" @click="removeSelectedImage"
+                                ><i class="zmdi zmdi-delete"></i
+                              ></span>
+                            </small>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <label
+                    class="error text-left"
+                    v-if="selectImageReject !== ''"
+                    id="isCoverImageDragReject"
+                    >{{ selectImageReject }}</label
+                  >
+                  <label class="error text-left" v-show="formErrors?.MetaImageFile">{{
+                    formUserErrors?.MetaImageFile
                   }}</label>
                 </div>
               </div>
@@ -113,15 +192,16 @@
 </template>
 
 <script setup>
-import { ref, inject, watch, onMounted } from 'vue'
+import { ref, inject, watch, onMounted, reactive } from 'vue'
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
 import modalToast from '@/utils/modalToast'
 import validation from '@/utils/validation'
 import utils from '@/utils/utils'
+import { useDropzone } from 'vue3-dropzone'
 import * as yup from 'yup'
 
 const { showConfirmModal, showToast } = modalToast()
-const { buildCategoryUrl } = utils()
+const { buildCategoryUrl, buildPostMediaUrl } = utils()
 
 const api = inject('api')
 const categories = ref([])
@@ -153,6 +233,8 @@ onMounted(async () => {
   queryParams.value = { ...queryParams.value, pageSize: rowsPerPage, page: page }
   await loadData(queryParams.value)
   await loadCategories()
+
+  autosize($('textarea.auto-growth'))
 })
 
 watch(
@@ -179,7 +261,11 @@ const initialFormData = () => {
   return {
     Name: '',
     Slug: '',
-    ParentId: 0
+    ParentId: 0,
+    MetaImageFile: null,
+    Meta: '',
+    MetaKeywords: '',
+    MetaDescription: ''
   }
 }
 const formData = ref(initialFormData())
@@ -187,7 +273,18 @@ const formErrors = ref({})
 const formSchema = yup.object({
   Name: yup.string().required().min(2),
   Slug: yup.string().required().min(2),
-  ParentId: yup.number().required().integer().min(0)
+  ParentId: yup.number().required().integer().min(0),
+  MetaImageFile: yup
+    .mixed()
+    .nullable(true)
+    .test('fileFormat', 'File format not supported', (value) => {
+      if (!value) return true
+      return value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
+    })
+    .test('fileSize', 'File size must be less than 5MB', (value) => {
+      if (!value) return true
+      return value && value.size <= 5 * 1024 * 1024 // 5MB
+    }),
 })
 const handleFormErrors = (errorData) => {
   let errors = {}
@@ -198,10 +295,59 @@ const handleFormErrors = (errorData) => {
   })
   formErrors.value = errors
 }
+
+// Cover image drop zone region
+const selectedImage = ref({
+  name: '',
+  type: '',
+  url: '',
+  size: 0,
+  file: ''
+})
+const selectImageReject = ref('')
+const removeSelectedImage = () => {
+  selectedImage.value = {}
+  selectImageReject.value = ''
+
+  formData.value.MetaImageFile = null
+}
+const onImageDrop = async (acceptedFiles, rejectReasons) => {
+  selectImageReject.value = ''
+  if (acceptedFiles.length > 0) {
+    selectedImage.value.size = acceptedFiles[0].size
+    selectedImage.value.type = acceptedFiles[0].type
+    selectedImage.value.name = acceptedFiles[0].name
+    selectedImage.value.file = acceptedFiles[0]
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      selectedImage.value.url = reader.result
+    }
+    reader.readAsDataURL(acceptedFiles[0])
+
+    formData.value.MetaImageFile = selectedImage.value.file
+  }
+
+  if (rejectReasons.length > 0) {
+    selectImageReject.value = rejectReasons[0].errors[0].message
+  }
+}
+const options = reactive({
+  multiple: false,
+  onDrop: onImageDrop,
+  accept: ['.jpg', '.jpeg', '.png']
+})
+const { getRootProps: getImageRootProps, getInputProps: getImageInputProps } =
+  useDropzone(options)
+// End Cover image drop zone region
+
 const showModal = async (mod, item = null) => {
   mode.value = mod
   errrorMessage.value = ''
+
   resetForm()
+  removeSelectedImage()
+
   if (mod == 'create') {
     $('.select-picker-parent').selectpicker('val', 0)
   }
@@ -210,12 +356,22 @@ const showModal = async (mod, item = null) => {
     formData.value = {
       Name: item.name,
       Slug: item.slug,
-      ParentId: item.parentId
+      ParentId: item.parentId,
+      Meta: item.meta,
+      MetaImageFile: null,
+      MetaKeywords: item.metaKeywords,
+      MetaDescription: item.metaDescription
     }
+
+    selectedImage.value.name = selectedItem.value.metaImage
+    selectedImage.value.url = buildPostMediaUrl(selectedItem.value.metaImage)
+
     $('.select-picker-parent').selectpicker('val', item.parentId)
   }
 
   $('select[class^="select-picker"]').selectpicker('refresh')
+
+  autosize($('textarea.auto-growth'))
   $(catModal.value).modal('show')
 }
 const onFormSubmit = async () => {

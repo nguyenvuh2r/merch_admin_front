@@ -18,6 +18,10 @@ const utils = () => {
     return CDN + 'images/blog/' + size + '/' + fileName
   }
 
+  const buildUserAvatarUrl = (fileName) => {
+    return CDN + 'images/user/' + fileName
+  }
+
   const buildPostUrl = (post) => {
     return BASE_URL + post.slug
   }
@@ -109,6 +113,7 @@ const utils = () => {
     buildPostMediaUrl,
     buildPostUrl,
     buildCategoryUrl,
+    buildUserAvatarUrl,
     createSlug,
     formatDateTime,
 		encrypt,

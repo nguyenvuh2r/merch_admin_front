@@ -78,7 +78,7 @@
                         <span class="icon-name">Password</span></a
                       >
                     </li>
-                    <li>
+                    <li :v-if="user.id != 1">
                       <a @click="showDeleteUser(user.id)"
                         ><i class="material-icons">remove_circle_outline</i>
                         <span class="icon-name">Remove</span></a
@@ -154,7 +154,7 @@
             <div class="row">
               <div class="col-lg-3 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Username</label>
+                  <label class="mt-0"><b>Username</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.Username }">
                     <input type="text" v-model="formUserData.Username" class="form-control" :disabled="mode == 'update'" />
                   </div>
@@ -165,7 +165,7 @@
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Email</label>
+                  <label class="mt-0"><b>Email</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.Email }">
                     <input type="text" v-model="formUserData.Email" class="form-control" />
                   </div>
@@ -176,7 +176,7 @@
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">First name</label>
+                  <label class="mt-0"><b>First name</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.FirstName }">
                     <input type="text" v-model="formUserData.FirstName" class="form-control" />
                   </div>
@@ -187,7 +187,7 @@
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Last name</label>
+                  <label class="mt-0"><b>Last name</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.LastName }">
                     <input type="text" v-model="formUserData.LastName" class="form-control" />
                   </div>
@@ -198,9 +198,55 @@
               </div>
             </div>
             <div class="row">
+              <div class="col-lg-3 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Facebook </b><i>(ID)</i></label>
+                  <div class="form-line" :class="{ error: formUserErrors?.Facebook }">
+                    <input type="text" v-model="formUserData.Facebook" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formUserErrors?.Facebook">{{
+                    formUserErrors?.Facebook
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Instagram </b><i>(ID)</i></label>
+                  <div class="form-line" :class="{ error: formUserErrors?.Instagram }">
+                    <input type="text" v-model="formUserData.Instagram" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formUserErrors?.Instagram">{{
+                    formUserErrors?.Instagram
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Twitter </b><i>(ID)</i></label>
+                  <div class="form-line" :class="{ error: formUserErrors?.Twitter }">
+                    <input type="text" v-model="formUserData.Twitter" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formUserErrors?.Twitter">{{
+                    formUserErrors?.Twitter
+                  }}</label>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6">
+                <div class="form-group">
+                  <label class="mt-0"><b>Youtube </b><i>(ID)</i></label>
+                  <div class="form-line" :class="{ error: formUserErrors?.Youtube }">
+                    <input type="text" v-model="formUserData.Youtube" class="form-control" />
+                  </div>
+                  <label class="error text-left" v-show="formUserErrors?.Youtube">{{
+                    formUserErrors?.Youtube
+                  }}</label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
               <div class="col-lg-4 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Gender</label>
+                  <label class="mt-0"><b>Gender</b></label>
                   <div :class="{ error: formUserErrors?.Gender }">
                     <select
                       v-model="formUserData.Gender"
@@ -217,7 +263,7 @@
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Mobile phone</label>
+                  <label class="mt-0"><b>Gender</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.PhoneNumber }">
                     <input type="text" v-model="formUserData.PhoneNumber" class="form-control" />
                   </div>
@@ -228,21 +274,20 @@
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0">Roles</label>
-                  <div :class="{ error: formUserErrors?.RoleIds }">
+                  <label class="mt-0"><b>Roles</b></label>
+                  <div :class="{ error: formUserErrors?.RoleId }">
                     <select
-                      v-model="formUserData.RoleIds"
+                      v-model="formUserData.RoleId"
                       class="select-picker-role form-control show-tick"
-                      multiple
-                      :disabled="mode == 'update' && selectedUser?.Username == 1"
+                      :disabled="mode == 'update' && selectedUser?.id == 1"
                     >
                       <option v-for="role in roles" :value="role.id" :key="role.id">
                         {{ role.name }}
                       </option>
                     </select>
                   </div>
-                  <label class="error text-left" v-show="formUserErrors?.RoleIds">{{
-                    formUserErrors?.RoleIds
+                  <label class="error text-left" v-show="formUserErrors?.RoleId">{{
+                    formUserErrors?.RoleId
                   }}</label>
                 </div>
               </div>
@@ -340,7 +385,7 @@
               </div>
               <div class="col-12">
                 <div class="form-group">
-                  <label class="mt-0">Old password</label>
+                  <label class="mt-0"><b>Old password</b></label>
                   <div class="form-line" :class="{ error: formPwdErrors.OldPassword }">
                     <input type="password" v-model="formPwdData.OldPassword" class="form-control" />
                   </div>
@@ -351,7 +396,7 @@
               </div>
               <div class="col-12">
                 <div class="form-group">
-                  <label class="mt-0">New password</label>
+                  <label class="mt-0"><b>New password</b></label>
                   <div class="form-line" :class="{ error: formPwdErrors.NewPassword }">
                     <input type="password" v-model="formPwdData.NewPassword" class="form-control" />
                   </div>
@@ -361,18 +406,18 @@
                 </div>
               </div>
               <div class="col-12">
-                <div class="form-group" :class="{ error: formPwdErrors.ConfirmedPassword }">
+                <div class="form-group" :class="{ error: formPwdErrors.ConfirmPassword }">
                   <div class="form-line">
-                    <label class="mt-0">Confirmed password</label>
+                    <label class="mt-0"><b>Confirm password</b></label>
                     <input
                       type="password"
                       id="ConfirmedPassword"
-                      v-model="formPwdData.ConfirmedPassword"
+                      v-model="formPwdData.ConfirmPassword"
                       class="form-control"
                     />
                   </div>
-                  <label class="error text-left" v-show="formPwdErrors.ConfirmedPassword">{{
-                    formPwdErrors.ConfirmedPassword
+                  <label class="error text-left" v-show="formPwdErrors.ConfirmPassword">{{
+                    formPwdErrors.ConfirmPassword
                   }}</label>
                 </div>
               </div>
@@ -395,10 +440,10 @@
 
 <script setup>
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
-import { ref, inject, onBeforeMount, onMounted, computed, reactive } from 'vue'
+import { ref, inject, onMounted, computed, reactive } from 'vue'
 import modalToast from '@/utils/modalToast'
 import validation from '@/utils/validation'
-
+import utils from '@/utils/utils'
 import { useDropzone } from 'vue3-dropzone'
 
 import * as yup from 'yup'
@@ -407,6 +452,7 @@ const api = inject('api')
 const { runYupValidation } = validation()
 
 const { showConfirmModal, showToast } = modalToast()
+const { encrypt, buildUserAvatarUrl } = utils()
 
 const loading = ref('false')
 const errrorMessage = ref('')
@@ -425,7 +471,7 @@ const initialPwdFormData = () => {
   return {
     OldPassword: '',
     NewPassword: '',
-    ConfirmedPassword: ''
+    ConfirmPassword: ''
   }
 }
 
@@ -434,8 +480,10 @@ const formPwdErrors = ref({})
 
 const pwdSchema = yup.object({
   OldPassword: yup.string().required().min(6),
-  NewPassword: yup.string().required().min(6),
-  ConfirmedPassword: yup
+  NewPassword: yup.string().required().min(6)
+    .notOneOf([yup.ref('OldPassword')], 'New password cannot be the same as the old password')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Password must contain at least one uppercase letter, one lowercase letter, and one digit'),
+  ConfirmPassword: yup
     .string()
     .required()
     .oneOf([yup.ref('NewPassword')], 'Passwords do not match')
@@ -447,7 +495,7 @@ const handleChangPwdErrors = (errorData) => {
 
     errors[propertyName] = errorMessage
   })
-  formUserErrors.value = errors
+  formPwdErrors.value = errors
 }
 const showChangePasswordModal = (userId) => {
   resetPwdForm()
@@ -465,9 +513,13 @@ const onPwdSubmit = async () => {
   }
   formPwdErrors.value = {}
 
+  data.OldPassword = encrypt(data.OldPassword)
+  data.ConfirmPassword = encrypt(data.ConfirmPassword)
+  data.NewPassword = encrypt(data.NewPassword)
+
   try {
     await api.user.changePassword(selectedUser.value.id, data)
-    showToast(`User "${selectedUser.value.Username}" password changed successfully...`)
+    showToast(`User "${selectedUser.value.userName}" password changed successfully...`)
     $(changePasswordModal.value).modal('hide')
   } catch (err) {
     if (err.errorData) {
@@ -489,7 +541,7 @@ const resetPwdForm = () => {
 const userModal = ref(null)
 const initialUserFormData = () => {
   return {
-    RoleIds: [],
+    RoleId: 0,
     Username: '',
     Email: '',
     FirstName: '',
@@ -497,7 +549,11 @@ const initialUserFormData = () => {
     PhoneNumber: '',
     Description: '',
     AvatarFile: null,
-    Gender: true
+    Gender: true,
+    Facebook: '',
+    Twitter: '',
+    Instagram: '',
+    Youtube: ''
   }
 }
 
@@ -525,7 +581,7 @@ const userSchema = yup.object({
     .string()
     .required()
     .matches(/^\d{10}$/, 'Phone number must be 10 digits'),
-  RoleIds: yup.array().min(1, 'Please select as least one role!'),
+  RoleId: yup.number().integer().required(),
   Gender: yup.bool().oneOf([true, false]).required()
 })
 
@@ -586,7 +642,9 @@ const handleUserErrors = (errorData) => {
 const showUserModal = async (mod, userId) => {
   mode.value = mod
   errrorMessage.value = ''
+  
   resetUserForm()
+  removeSelectedCoverImage()
 
   if (mod == 'create') {
     $('.select-picker-role').selectpicker('val', [])
@@ -595,7 +653,7 @@ const showUserModal = async (mod, userId) => {
   if (mod == 'update') {
     await selectUser(userId)
     formUserData.value = {
-      RoleIds: selectedUser.value.roleIds,
+      RoleId: selectedUser.value.roleId,
       Username: selectedUser.value.userName,
       Email: selectedUser.value.email,
       FirstName: selectedUser.value.firstName,
@@ -603,9 +661,17 @@ const showUserModal = async (mod, userId) => {
       PhoneNumber: selectedUser.value.phoneNumber,
       Gender: selectedUser.value.gender,
       Description: selectedUser.value.description,
+      Facebook: selectedUser.value.facebook,
+      Twitter: selectedUser.value.twitter,
+      Instagram: selectedUser.value.instagram,
+      Youtube: selectedUser.value.youtube,
       AvatarFile: null
     }
-    $('.select-picker-role').selectpicker('val', selectedUser.value.roleIds)
+
+    selectedImage.value.name = selectedUser.value.avatar
+    selectedImage.value.url = buildUserAvatarUrl(selectedUser.value.avatar)
+
+    $('.select-picker-role').selectpicker('val', selectedUser.value.roleId)
     $('.select-picker-gender').selectpicker(
       'val',
       selectedUser.value.gender == true ? 'true' : 'false'
@@ -613,6 +679,7 @@ const showUserModal = async (mod, userId) => {
   }
 
   $('select[class^="select-picker"]').selectpicker('refresh')
+  autosize($('textarea.auto-growth'))
   $(userModal.value).modal('show')
 }
 const onUserSubmit = async () => {
@@ -698,13 +765,10 @@ const displayedPages = computed(() => {
   return rangeWithDots
 })
 
-onBeforeMount(() => {
-  loadUsers(queryParams.value)
-  loadRoles()
-})
-
-onMounted(() => {
-  //autosize($('textarea.auto-growth'))
+onMounted(async () => {
+  await loadUsers(queryParams.value)
+  await loadRoles()
+  autosize($('textarea.auto-growth'))
 })
 
 const goToPage = (pageNumber) => {
@@ -723,14 +787,13 @@ const previousPage = () => {
 }
 
 const loadRoles = async () => {
-  await api.rolePermission
-    .allRoles()
-    .then((res) => {
-      roles.value = res.data
-    })
-    .catch((err) => {
-      errrorMessage.value = err.message
-    })
+  try {
+    const res = await api.rolePermission.allRoles()
+    roles.value = res.data
+  }
+  catch (err) {
+    errrorMessage.value = err.message
+  }
 }
 
 const showDeleteUser = (userId) => {
@@ -765,17 +828,21 @@ const recacheUsers = async () => {
 
 const loadUsers = async (queryParams) => {
   loading.value = true
-  await api.user
-    .all(queryParams)
-    .then((res) => {
-      data.value = res.data
-      pagination.value = res.pagination
-    })
-    .catch((err) => {
-      errrorMessage.value = err.message
-      showToast(err.message, 'error')
-    })
-    .finally(() => (loading.value = false))
+  try
+  {
+    const res = await api.user.all(queryParams)
+    data.value = res.data
+    pagination.value = res.pagination
+  }
+  catch (err)
+  {
+    errrorMessage.value = err.message
+    showToast(err.message, 'error')
+  }
+  finally
+  {
+    loading.value = false
+  }
 }
 
 const selectUser = async (userId) => {
