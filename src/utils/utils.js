@@ -23,11 +23,11 @@ const utils = () => {
   }
 
   const buildPostUrl = (post) => {
-    return BASE_URL + post.slug
+    return BASE_URL + 'blog/' + post.slug
   }
 
   const buildCategoryUrl = (category) => {
-    return BASE_URL + 'blog/' + category.slug + '/' + category.id
+    return BASE_URL + 'blog/' + category.slug
   }
 
   const createSlug = (title) => {
