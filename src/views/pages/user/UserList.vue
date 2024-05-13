@@ -263,7 +263,7 @@
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="form-group">
-                  <label class="mt-0"><b>Gender</b></label>
+                  <label class="mt-0"><b>Phone number</b></label>
                   <div class="form-line" :class="{ error: formUserErrors?.PhoneNumber }">
                     <input type="text" v-model="formUserData.PhoneNumber" class="form-control" />
                   </div>
