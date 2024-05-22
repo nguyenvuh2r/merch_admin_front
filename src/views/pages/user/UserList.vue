@@ -155,11 +155,11 @@
               <div class="col-lg-3 col-md-6">
                 <div class="form-group">
                   <label class="mt-0"><b>Username</b></label>
-                  <div class="form-line" :class="{ error: formUserErrors?.Username }">
-                    <input type="text" v-model="formUserData.Username" class="form-control" :disabled="mode == 'update'" />
+                  <div class="form-line" :class="{ error: formUserErrors?.UserName }">
+                    <input type="text" v-model="formUserData.UserName" class="form-control" :disabled="mode == 'update'" />
                   </div>
-                  <label class="error text-left" v-show="formUserErrors?.Username">{{
-                    formUserErrors?.Username
+                  <label class="error text-left" v-show="formUserErrors?.UserName">{{
+                    formUserErrors?.UserName
                   }}</label>
                 </div>
               </div>
@@ -542,7 +542,7 @@ const userModal = ref(null)
 const initialUserFormData = () => {
   return {
     RoleId: 0,
-    Username: '',
+    UserName: '',
     Email: '',
     FirstName: '',
     LastName: '',
@@ -561,7 +561,7 @@ const formUserData = ref(initialUserFormData())
 const formUserErrors = ref({})
 
 const userSchema = yup.object({
-  Username: yup.string().required().min(4),
+  UserName: yup.string().required().min(4),
   Email: yup.string().required().email(),
   FirstName: yup.string().required().min(2),
   LastName: yup.string().required().min(2),
@@ -654,7 +654,7 @@ const showUserModal = async (mod, userId) => {
     await selectUser(userId)
     formUserData.value = {
       RoleId: selectedUser.value.roleId,
-      Username: selectedUser.value.userName,
+      UserName: selectedUser.value.userName,
       Email: selectedUser.value.email,
       FirstName: selectedUser.value.firstName,
       LastName: selectedUser.value.lastName,
@@ -701,8 +701,8 @@ const onUserSubmit = async () => {
     if (res.data) {
       showToast(
         mode.value == 'create'
-          ? `User "${data.Username}" created successfully...`
-          : `User "${data.Username}" updated successfully...`
+          ? `User "${data.UserName}" created successfully...`
+          : `User "${data.UserName}" updated successfully...`
       )
       loadUsers(queryParams.value)
       $(userModal.value).modal('hide')
