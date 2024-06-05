@@ -111,7 +111,7 @@ const headers = ref([
   { text: 'Title', value: 'title' },
   { text: 'Category', value: 'category.name' },
   { text: 'Slug', value: 'slug' },
-  { text: 'Status', value: 'isPublish' },
+  { text: 'Published', value: 'isPublish' },
   { text: 'Index', value: 'isIndex' },
   { text: 'Operation', value: 'operation' }
 ])

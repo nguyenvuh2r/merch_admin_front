@@ -49,7 +49,7 @@
       </div>
       <div class="form-group">
         <label class="font-weight-bold mt-0">Content</label>
-        <div :class="{ error: formErrors?.Content }">
+        <div class="ck_editor_wrapper" :class="{ error: formErrors?.Content }">
           <ckeditor
             :editor="editor"
             @ready="onEditorReady"
@@ -195,6 +195,7 @@
 <script setup>
 import { ref, inject, onMounted, reactive } from 'vue'
 
+import baseEditorConfig from '@/config/editor'
 import DocumentEditor from '@ckeditor/ckeditor5-build-decoupled-document'
 import CkUploadAdapterPlugin from '../../../../plugins/CkUploadAdapter'
 import Vue3TagsInput from 'vue3-tags-input'
@@ -235,6 +236,7 @@ function ckUploader(editor) {
 }
 const editor = DocumentEditor
 const editorConfig = {
+  ...baseEditorConfig,
   extraPlugins: [ckUploader]
 }
 const onEditorReady = (editor) => {
@@ -443,6 +445,7 @@ onMounted(async () => {
 })
 
 const updateSlug = () => {
+  if (post.value.isPublish) return
   formData.value.Slug = generateSlug(formData.value.Title)
 }
 
