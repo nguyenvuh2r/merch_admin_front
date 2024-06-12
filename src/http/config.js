@@ -11,7 +11,7 @@ export default {
   // parameter
   data: {},
   // Set timeout
-  timeout: 10000,
+  timeout: 30000,
   // Bring your voucher
   withCredentials: true,
   // Return data type
