@@ -1,51 +1,24 @@
 <template>
-  <AuthorizationFallback :permissions="['blog-post-create', 'blog-post-create', 'admin']">
+  <AuthorizationFallback :permissions="['admin']">
     <div class="header">
       <h2>
-        Editing article: <b>{{ post?.title }}</b>
+        Editing page: <b>{{ page?.title }}</b>
       </h2>
     </div>
     <div class="body">
       <div class="form-group">
-        <label class="font-weight-bold mt-0">Article title</label>
+        <label class="font-weight-bold mt-0">Page title</label>
         <div class="form-line" :class="{ error: formErrors?.Title }">
           <input type="text" v-model="formData.Title" @input="updateSlug" class="form-control" />
         </div>
         <label class="error text-left" v-show="formErrors?.Title">{{ formErrors?.Title }}</label>
       </div>
       <div class="form-group">
-        <label class="font-weight-bold mt-0">Article slug</label>
+        <label class="font-weight-bold mt-0">Page slug</label>
         <div class="form-line" :class="{ error: formErrors?.Slug }">
           <input type="text" v-model="formData.Slug" class="form-control" />
         </div>
         <label class="error text-left" v-show="formErrors?.Slug">{{ formErrors?.Slug }}</label>
-      </div>
-      <div class="form-group">
-        <label class="font-weight-bold mt-0">Category</label>
-        <div :class="{ error: formErrors?.CategoryId }">
-          <select
-            v-model="formData.CategoryId"
-            class="select-picker-category form-control show-tick"
-          >
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
-        </div>
-        <label class="error text-left" v-show="formErrors?.CategoryId">{{
-          formErrors?.CategoryId
-        }}</label>
-      </div>
-      <div class="form-group">
-        <label class="mt-0"><b>Summary</b> <i>(Press Enter for new line)</i></label>
-        <div class="form-line" :class="{ error: formErrors?.Summary }">
-          <textarea
-            v-model="formData.Summary"
-            rows="1"
-            class="form-control no-resize auto-growth"
-          ></textarea>
-        </div>
-        <label class="error text-left" v-show="formErrors?.Summary">{{
-          formErrors?.Summary
-        }}</label>
       </div>
       <div class="form-group">
         <label class="font-weight-bold mt-0">Content</label>
@@ -198,7 +171,7 @@ import router from '@/router'
 
 import baseEditorConfig from '@/config/editor'
 import DocumentEditor from '@ckeditor/ckeditor5-build-decoupled-document'
-import CkUploadAdapterPlugin from '../../../../plugins/CkUploadAdapter'
+import CkUploadAdapterPlugin from '@/plugins/CkUploadAdapter'
 import Vue3TagsInput from 'vue3-tags-input'
 
 import AuthorizationFallback from '@/components/page/AuthorizationFallback.vue'
@@ -216,7 +189,7 @@ import utils from '@/utils/utils'
 import { smallImage } from '@/utils/global'
 
 const { showToast } = modalToast()
-const { buildMediaUrl, buildPostMediaUrl } = utils()
+const { buildMediaUrl, buildPageMediaUrl } = utils()
 
 const api = inject('api')
 
@@ -224,8 +197,6 @@ const route = useRoute()
 const postId = ref(route.params.id)
 const post = ref({})
 const loading = ref(false)
-
-const categories = ref([])
 
 // Editor config
 function ckUploader(editor) {
@@ -336,15 +307,13 @@ const initialFormData = () => {
     Slug: '',
     IsPublish: false,
     Image: '',
-    Summary: '',
     Content: '',
     Tags: [],
     Meta: '',
     MetaDescription: '',
     MetaImage: '',
     MetaKeywords: '',
-    MetaAuthor: '',
-    CategoryId: 1
+    MetaAuthor: ''
   }
 }
 const formData = ref(initialFormData())
@@ -357,15 +326,13 @@ const formSchema = yup.object({
     .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid Slug format')
     .test('no-consecutive-hyphens-or-underscores', 'Slug must not contain consecutive hyphens or underscores', value => (!value.includes('--') && !value.includes('__'))),
   IsPublish: yup.boolean().required(),
-  Summary: yup.string().required().min(2),
   Content: yup.string(),
   Tags: yup.array(),
   Meta: yup.string(),
   MetaDescription: yup.string(),
   MetaImage: yup.string(),
   MetaKeywords: yup.string(),
-  MetaAuthor: yup.string(),
-  CategoryId: yup.number().required().integer().min(0)
+  MetaAuthor: yup.string()
 })
 const handleFormErrors = (errorData) => {
   let errors = {}
@@ -391,10 +358,10 @@ const onFormSubmit = async (isPublish = true) => {
   try {
     data.IsPublish = isPublish
 
-    const res = await api.blogPost.update(postId.value, data)
+    const res = await api.page.update(postId.value, data)
     if (res.data) {
-      showToast(`Article updated successfully...`)
-      router.push({ name: 'blog-post-all' })
+      showToast(`Page updated successfully...`)
+      router.push({ name: 'website-page-all' })
     }
   } catch (err) {
     if (err.errorData) {
@@ -413,8 +380,7 @@ const handleChangeTag = (tags) => {
 // End Form region
 
 onMounted(async () => {
-  await loadCategories()
-  await loadPost()
+  await loadPage()
   autosize($('textarea.auto-growth'))
 
   formData.value = {
@@ -422,26 +388,24 @@ onMounted(async () => {
     Slug: post.value.slug,
     IsPublish: post.value.isPublish,
     Image: post.value.image,
-    Summary: post.value.summary,
     Content: post.value.content,
-    Tags: post.value.postTags.map(item => item.tag.name),
+    Tags: post.value.pageTags.map(item => item.tag.name),
     Meta: post.value.meta,
     MetaDescription: post.value.metaDescription,
     MetaImage: post.value.metaImage,
     MetaKeywords: post.value.metaKeywords,
-    MetaAuthor: post.value.metaAuthor,
-    CategoryId: post.value.categoryId
+    MetaAuthor: post.value.metaAuthor
   }
 
   $('.select-picker-category').selectpicker('val', post.value.categoryId)
   $('select[class^="select-picker"]').selectpicker('refresh')
 
   if (post.value.image) {
-    selectedImage.value.url = buildPostMediaUrl(post.value.image, '300x300')
+    selectedImage.value.url = buildPageMediaUrl(post.value.image, '300x300')
     selectedImage.value.name = post.value.image
   }
   if (post.value.metaImage) {
-    selectedMetaImage.value.url = buildPostMediaUrl(post.value.metaImage, '300x300')
+    selectedMetaImage.value.url = buildPageMediaUrl(post.value.metaImage, '300x300')
     selectedMetaImage.value.name = post.value.metaImage
   }
 })
@@ -465,23 +429,10 @@ const saveImageFile = async (file, size = smallImage) => {
   }
 }
 
-const loadPost = async () => {
+const loadPage = async () => {
   try {
-    const res = await api.blogPost.get(postId.value)
+    const res = await api.page.get(postId.value)
     post.value = res.data
-  } catch (err) {
-    showToast(err.message, 'error')
-  }
-}
-
-const loadCategories = async () => {
-  try {
-    var res = await api.blogCategory.deepAll()
-    categories.value = [
-      ...res.data.map((cat) => {
-        return { id: cat.id, name: cat.name }
-      })
-    ]
   } catch (err) {
     showToast(err.message, 'error')
   }

@@ -18,12 +18,20 @@ const utils = () => {
     return CDN + 'images/blog/' + size + '/' + fileName
   }
 
+  const buildPageMediaUrl = (fileName, size = '1024x1024') => {
+    return CDN + 'images/page/' + size + '/' + fileName
+  }
+
   const buildUserAvatarUrl = (fileName) => {
     return CDN + 'images/user/' + fileName
   }
 
   const buildPostUrl = (post) => {
     return BASE_URL + 'blog/' + post.slug
+  }
+
+  const buildPageUrl = (post) => {
+    return BASE_URL + 'page/' + post.slug
   }
 
   const buildCategoryUrl = (category) => {
@@ -114,6 +122,8 @@ const utils = () => {
     buildPostUrl,
     buildCategoryUrl,
     buildUserAvatarUrl,
+    buildPageMediaUrl,
+    buildPageUrl,
     createSlug,
     formatDateTime,
 		encrypt,

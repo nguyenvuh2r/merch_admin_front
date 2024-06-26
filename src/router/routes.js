@@ -7,7 +7,12 @@ import BlogCategoryList from '@/views/pages/blog/category/CategoryList.vue'
 import BlogPostList from '@/views/pages/blog/post/PostList.vue'
 import BlogPostForm from '@/views/pages/blog/post/PostForm.vue'
 
+import ProductCategoryList from '@/views/pages/ecom/product/category/CategoryList.vue'
+
 import UserList from '@/views/pages/user/UserList.vue'
+
+import PagePostFrom from '@/views/pages/page/PageForm.vue'
+import PageList from '@/views/pages/page/PageList.vue'
 
 export default [
   {
@@ -67,6 +72,36 @@ export default [
           alias: ['website', 'user']
         }
       },
+      {
+        path: 'website/pages',
+        name: 'website-page-all',
+        component: PageList,
+        meta: {
+          requiresAuth: true,
+          permissions: ['admin'],
+          alias: ['website', 'page', 'all']
+        }
+      },
+      {
+        path: 'website/pages/:id',
+        name: 'website-page-create',
+        component: PagePostFrom,
+        meta: {
+          requiresAuth: true,
+          permissions: ['admin'],
+          alias: ['website', 'page', 'create']
+        }
+      },
+      {
+        path: 'ecommerce/categories',
+        name: 'ecom-cat-all',
+        component: ProductCategoryList,
+        meta: {
+          requiresAuth: true,
+          permissions: ['ecom-cat-all', 'admin'],
+          alias: ['ecom', 'cat', 'all']
+        }
+      }
     ]
   },
   {

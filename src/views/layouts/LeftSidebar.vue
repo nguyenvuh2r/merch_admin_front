@@ -55,6 +55,18 @@
             </router-link>
           </ul>
         </li>
+        <li v-permissions="['admin', 'ecom-cat-all', 'ecom-prod-all']" :class="{ 'active open': isMainRoute('ecom') }">
+          <a href="javascript:void(0);" class="menu-toggle">
+            <i class="zmdi zmdi-collection-item-1"></i><span>Product</span>
+          </a>
+          <ul class="ml-menu">
+            <router-link to="/ecommerce/categories" custom v-slot="{ navigate, href }">
+              <li v-permissions="['admin', 'blog-post-all']" :class="{ 'active': isSubRoute(['ecom-cat-all', 'ecom-cat-create']) }">
+                <a :class="{ 'toggled waves-effect waves-block': isSubRoute(['ecom-cat-all', 'ecom-cat-create']) }" class="waves-effect waves-block" :href="href" @click="navigate">Categories</a>
+              </li>
+            </router-link>
+          </ul>
+        </li>
         <li :class="{ 'active open': isMainRoute('website') }">
           <a href="javascript:void(0);" class="menu-toggle">
             <i class="zmdi zmdi-view-web"></i><span>Website</span>
@@ -63,6 +75,11 @@
             <router-link to="/website/users" custom v-slot="{ navigate, href }">
               <li v-permissions="['admin']" :class="{ 'active': isSubRoute(['website-user']) }">
                 <a :class="{ 'toggled': isSubRoute(['website-user']) }" class="waves-effect waves-block" :href="href" @click="navigate">Users</a>
+              </li>
+            </router-link>
+            <router-link to="/website/pages" custom v-slot="{ navigate, href }">
+              <li v-permissions="['admin']" :class="{ 'active': isSubRoute(['website-page-all', 'website-page-create']) }">
+                <a :class="{ 'toggled': isSubRoute(['website-page-all', 'website-page-create']) }" class="waves-effect waves-block" :href="href" @click="navigate">Pages</a>
               </li>
             </router-link>
           </ul>
