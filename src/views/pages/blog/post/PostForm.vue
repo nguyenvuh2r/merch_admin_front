@@ -232,7 +232,7 @@ function ckUploader(editor) {
   // didn't work on es6 arrow function :'(
   // ex: const ckUploader = () => {} 
   editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-    return new CkUploadAdapterPlugin(loader, route.params.id)
+    return new CkUploadAdapterPlugin(loader, route.params.id, 'site-page')
   }
 }
 const editor = DocumentEditor

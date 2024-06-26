@@ -5,16 +5,19 @@ import utils from '@/utils/utils'
 const { buildMediaUrl } = utils()
 
 export default class CkUploadAdapter {
-  constructor(loader, postId) {
+  constructor(loader, postId, type) {
     this.loader = loader
     this.postId = postId
+    this.type = type
   }
 
   upload() {
     return this.loader.file
       .then(file => {
         return new Promise((resolve, reject) => {
-          api.blogPost.uploadImage(this.postId, file, largeImage)
+          if (this.type === 'blog-post')
+          {
+            api.blogPost.uploadImage(this.postId, file, largeImage)
             .then(response => {
               resolve({
                 default: buildMediaUrl(response.data.url)
@@ -23,6 +26,19 @@ export default class CkUploadAdapter {
             .catch(error => {
               reject(error)
             })
+          }
+          else if (this.type === 'site-page')
+          {
+            api.page.uploadImage(this.postId, file, largeImage)
+            .then(response => {
+              resolve({
+                default: buildMediaUrl(response.data.url)
+              })
+            })
+            .catch(error => {
+              reject(error)
+            })
+          }
         })
       })
   }
