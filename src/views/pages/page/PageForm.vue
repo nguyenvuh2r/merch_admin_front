@@ -421,7 +421,7 @@ const generateSlug = (title) => {
 
 const saveImageFile = async (file, size = smallImage) => {
   try {
-    const res = await api.blogPost.uploadImage(postId.value, file, size)
+    const res = await api.page.uploadImage(postId.value, file, size)
     return res.data
   } catch (err) {
     showToast(err.message, 'error')
